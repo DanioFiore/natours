@@ -5,6 +5,17 @@ const app = express();
 
 app.use(express.json());
 
+// even a simple route is a middleware in express, the middlewares are executed in order in the code, so if i put a middleware up here, and don't specify a route, it will be applied to all the route, if we put it after the route (that is a middleware like i said before) it will not work
+app.use((req, res, next) => {
+    console.log('Middleware');
+    next();
+})
+
+app.use((req, res, next) => {
+    // now this property is accessible in ALL our routes
+    req.requestTime = new Date().toISOString();
+    next();
+})
 
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
@@ -13,6 +24,7 @@ const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
     results: tours.length,
+    time: req.requestTime,
     data: {
       tours: tours,
     },
@@ -21,7 +33,6 @@ const getAllTours = (req, res) => {
 
 const getTour = (req, res) => {
   const tour = tours.find((el) => el.id == req.params.id);
-
   if (!tour) {
     return res.status(404).json({
       status: 'fail',
