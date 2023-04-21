@@ -1,8 +1,13 @@
 const express = require('express');
 const fs = require('fs');
+const morgan = require('morgan');
 
 const app = express();
 
+// 1) MIDDLEWARE
+app.use(morgan('dev'));
+
+// json is a middleware used to parse the body
 app.use(express.json());
 
 // even a simple route is a middleware in express, the middlewares are executed in order in the code, so if i put a middleware up here, and don't specify a route, it will be applied to all the route, if we put it after the route (that is a middleware like i said before) it will not work
@@ -20,6 +25,7 @@ app.use((req, res, next) => {
 const tours = JSON.parse(fs.readFileSync(`${__dirname}/dev-data/data/tours-simple.json`));
 
 
+// 2) ROUTE HANDLERS
 const getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -65,6 +71,7 @@ const addTour = (req, res) => {
   );
 };
 
+// 3) ROUTES
 // we can add a parameter to the url like :id and we can make it optional by adding a question mark :id?. We can access to req.params to see the url parameters
 app.get('/api/v1/tours/:id', getTour);
 // we can add together the request with the same url
@@ -73,6 +80,7 @@ app.get('/api/v1/tours/:id', getTour);
 app.route('/api/v1/tours').get(getAllTours).post(addTour);
 
 
+// 4) SERVER
 const port = 3001;
 app.listen(port, () => {
     console.log(`Running on port: ${port}`);
