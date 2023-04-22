@@ -71,6 +71,41 @@ const addTour = (req, res) => {
   );
 };
 
+const getAllUsers = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route not yet defined',
+  })
+}
+
+const getUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route not yet defined',
+  });
+};
+
+const updateUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route not yet defined',
+  });
+};
+
+const deleteUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route not yet defined',
+  });
+};
+
+const createUser = (req, res) => {
+  res.status(500).json({
+    status: 'error',
+    message: 'Route not yet defined',
+  });
+};
+
 // 3) ROUTES
 // we can add a parameter to the url like :id and we can make it optional by adding a question mark :id?. We can access to req.params to see the url parameters
 app.get('/api/v1/tours/:id', getTour);
@@ -78,7 +113,8 @@ app.get('/api/v1/tours/:id', getTour);
 // app.post('/api/v1/tours', addTour);
 // app.get('/api/v1/tours', getAllTours);
 app.route('/api/v1/tours').get(getAllTours).post(addTour);
-
+app.route('/api/v1/users').get(getAllUsers).post(createUser);
+app.route('/api/user/:id').get(getUser).patch(updateUser).delete(deleteUser);
 
 // 4) SERVER
 const port = 3001;
