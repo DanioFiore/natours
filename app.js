@@ -15,7 +15,6 @@ app.use(express.json());
 
 // even a simple route is a middleware in express, the middlewares are executed in order in the code, so if i put a middleware up here, and don't specify a route, it will be applied to all the route, if we put it after the route (that is a middleware like i said before) it will not work
 app.use((req, res, next) => {
-    console.log('Middleware');
     next();
 })
 

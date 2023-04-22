@@ -3,6 +3,16 @@ const tours = JSON.parse(
   fs.readFileSync(`${__dirname}/../dev-data/data/tours-simple.json`)
 );
 
+exports.checkID = (req, res, next, val) => {
+    if (val > tours.length) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'ID not found',
+      });
+    }
+    next();
+}
+
 exports.getAllTours = (req, res) => {
   res.status(200).json({
     status: 'success',
@@ -16,12 +26,6 @@ exports.getAllTours = (req, res) => {
 
 exports.getTour = (req, res) => {
   const tour = tours.find((el) => el.id == req.params.id);
-  if (!tour) {
-    return res.status(404).json({
-      status: 'fail',
-      message: 'ID not found',
-    });
-  }
   res.status(200).json({
     status: 'success',
     data: {
@@ -46,5 +50,12 @@ exports.addTour = (req, res) => {
       });
     }
   );
+};
+
+exports.deleteTour = (req, res) => {
+    res.status(404).json({
+        status: 'error',
+        message: 'not available yet'
+    })
 };
 
