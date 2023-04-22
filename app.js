@@ -107,14 +107,22 @@ const createUser = (req, res) => {
 };
 
 // 3) ROUTES
+const tourRouter = express.Router();
+app.use('/api/v1/tours', tourRouter);
 // we can add a parameter to the url like :id and we can make it optional by adding a question mark :id?. We can access to req.params to see the url parameters
-app.get('/api/v1/tours/:id', getTour);
+tourRouter.get('/:id', getTour);
 // we can add together the request with the same url
 // app.post('/api/v1/tours', addTour);
 // app.get('/api/v1/tours', getAllTours);
-app.route('/api/v1/tours').get(getAllTours).post(addTour);
-app.route('/api/v1/users').get(getAllUsers).post(createUser);
-app.route('/api/user/:id').get(getUser).patch(updateUser).delete(deleteUser);
+tourRouter.route('/').get(getAllTours).post(addTour);
+
+const userRouter = express.Router();
+app.use('/api/v1/users', userRouter);
+
+userRouter.route('/').get(getAllUsers).post(createUser);
+userRouter.route('/:id').get(getUser).patch(updateUser).delete(deleteUser);
+
+
 
 // 4) SERVER
 const port = 3001;
