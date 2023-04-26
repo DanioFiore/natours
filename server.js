@@ -20,37 +20,3 @@ mongoose
     // console.log(connection.connections);
     console.log('DB connection successfull');
   });
-
-
-// this is the schema, where we define the documents property
-const tourSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, 'A tour must have a name'],
-    unique: true,
-  },
-  rating: Number,
-  price: {
-    type: Number,
-    default: 10,
-  },
-})
-
-// this is the model that allows us to interact with the documents, we pass the name of the model and the schema. If we don't have a tour collection, it will be automatic created a tours(plural) collection
-const Tour = mongoose.model('Tour', tourSchema);
-
-const testTour = new Tour({
-  name: 'The park camper',
-  rating: 4.7,
-  price: 497
-});
-
-testTour.save().then(document => {
-  console.log(document);
-}).catch(error => {
-  console.log(error);
-});
-const port = process.env.PORT || 3002;
-app.listen(port, () => {
-  console.log(`Running on port: ${port}`);
-});
