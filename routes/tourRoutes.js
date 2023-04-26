@@ -10,6 +10,7 @@ router.route('/:id').get(tourController.getTour).delete(tourController.deleteTou
 // we can add together the request with the same url
 // router.post('/api/v1/tours', addTour);
 // router.get('/api/v1/tours', getAllTours);
-router.route('/').get(tourController.getAllTours).post(tourController.checkBody, tourController.addTour);
+// router.route('/').get(tourController.getAllTours).post(tourController.checkBody, tourController.addTour);
+router.route('/').get(tourController.getAllTours).post(tourController.createTour);
 
 module.exports = router;

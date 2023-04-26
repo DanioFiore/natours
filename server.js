@@ -20,3 +20,7 @@ mongoose
     // console.log(connection.connections);
     console.log('DB connection successfull');
   });
+
+app.listen(process.env.PORT, () => {
+  console.log('Server running on port ' + process.env.PORT);
+})
