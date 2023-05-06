@@ -2,13 +2,12 @@ const Tour = require('./../models/tourModel');
 
 exports.getAllTours = async (req, res) => {
   try {
-
     // in JS we always create a reference to the object, but usign destructuring, we create a totally new object, a real copy
-    const queryObj = {...req.query};
+    const queryObj = { ...req.query };
 
     // here we want to exclude the pagination query parameter, because otherwise we will not have a result, given that we have no DB recors that contains, for example, the page field
     const excludeFields = ['page', 'sort', 'limit', 'fields'];
-    excludeFields.forEach(el => delete queryObj[el]);
+    excludeFields.forEach((el) => delete queryObj[el]);
     const tours = await Tour.find(queryObj);
     // const tours = await Tour.find({
     //   duration: 5,
@@ -18,13 +17,18 @@ exports.getAllTours = async (req, res) => {
     // we can have access to the query using req.query
     // or we can use mongoose to make filtering, we can do that because the find() method will return an object type query
     // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy');
+
+    // we can add in the query some [property] to our query, like gte(greater than) ecc, but the problem is that if we access to req.query we see, for example {duration: {gte :5} WITHOUT the $ that is important for mongoDB cause he used that in some query parameter, so the result that we want is {duration: {$gte :5} and here we replace every math with the same match but with $ in front of
+    let queryStr = JSON.stringify(queryObj);
+    queryStr = queryStr.replace(/\b(gte|gt|lte|lt)\b/g, (match) => `$${match}`);
+
     res.status(200).json({
       status: 'success',
       results: tours.length,
-      data:  {
+      data: {
         tours,
-      }
-    })
+      },
+    });
   } catch (error) {
     res.status(404).json({
       status: 'failed',
