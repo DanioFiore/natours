@@ -1,9 +1,11 @@
 const mongoose = require('mongoose');
-const app = require('./app');
 const dotenv = require('dotenv');
 
 // we installed dotenv that is used to read our config.env file
 dotenv.config({path: './config.env'});
+
+const app = require('./app');
+
 // used to see our environment variable(global variable)
 // console.log(process.env);
 
