@@ -2,7 +2,22 @@ const Tour = require('./../models/tourModel');
 
 exports.getAllTours = async (req, res) => {
   try {
-    const tours = await Tour.find(); // find() retrieve all the results in that collection
+
+    // in JS we always create a reference to the object, but usign destructuring, we create a totally new object, a real copy
+    const queryObj = {...req.query};
+
+    // here we want to exclude the pagination query parameter, because otherwise we will not have a result, given that we have no DB recors that contains, for example, the page field
+    const excludeFields = ['page', 'sort', 'limit', 'fields'];
+    excludeFields.forEach(el => delete queryObj[el]);
+    const tours = await Tour.find(queryObj);
+    // const tours = await Tour.find({
+    //   duration: 5,
+    //   difficulty: 'easy'
+    // }); // find() retrieve all the results in that collection, but we can pass an object to filter the results
+
+    // we can have access to the query using req.query
+    // or we can use mongoose to make filtering, we can do that because the find() method will return an object type query
+    // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy');
     res.status(200).json({
       status: 'success',
       results: tours.length,
