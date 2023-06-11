@@ -9,14 +9,6 @@ exports.getAllTours = async (req, res) => {
     // here we want to exclude the pagination query parameter, because otherwise we will not have a result, given that we have no DB records that contains, for example, the page field
     const excludeFields = ['page', 'sort', 'limit', 'fields'];
     excludeFields.forEach((el) => delete queryObj[el]);
-    // const tours = await Tour.find({
-    //   duration: 5,
-    //   difficulty: 'easy'
-    // }); // find() retrieve all the results in that collection, but we can pass an object to filter the results
-
-    // we can have access to the query using req.query
-    // or we can use mongoose to make filtering, we can do that because the find() method will return an object type query
-    // const tours = await Tour.find().where('duration').equals(5).where('difficulty').equals('easy');
 
     // we can add in the query some [property], like gte(greater than) ecc, but the problem is that if we access to req.query we see, for example {duration: {gte :5} WITHOUT the $ that is important for mongoDB cause he used that in some query parameter, so the result that we want is {duration: {$gte :5} and here we replace every math with the same match but with $ in front of
     let queryStr = JSON.stringify(queryObj);
@@ -25,14 +17,30 @@ exports.getAllTours = async (req, res) => {
     let query = Tour.find(JSON.parse(queryStr));
 
     // 2) Sorting
+    /**
+     * with sort method we sort our result from the query. Pay attention that mongoose accept the parameter separated by space, so we retrieve the query parameter from the url and split them by comma, and then join them by space.
+     */
     if(req.query.sort) {
-      // we take the query sort parameter from the url and separate them
+      // we take the query sort parameter from the url and separate them because mongoose accept them separated
       let sortBy = req.query.sort.split(',').join(' ');
       query = query.sort(sortBy);
     } else {
       // default
       query = query.sort('-createdAt');
     }
+
+    // 3) Fields Limiting
+    /**
+     * with select, we choose what fields we send to the client, like price, difficulty.
+     * Also we can put - in front of the field, and that means that we want to REMOVE that field so we didn't send it to the client.
+     * The id field is by default always included
+     */
+    if(req.query.fields) {
+      const fields = req.query.fields.split(',').join(' ');
+      query = query.select(fields);
+    } else {
+      query = query.select('-__v');
+    };
 
     const tours = await query;
 
