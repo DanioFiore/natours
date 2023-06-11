@@ -42,6 +42,20 @@ exports.getAllTours = async (req, res) => {
       query = query.select('-__v');
     };
 
+    // 4) Pagination
+    /**
+     * The skip method are the number of records that we want to skip, and the limit is the number of recors we want to
+     * display per page. For example, if we have 30 records, and we want limit 10, if we are in page 2, we want to skip 
+     * 10 records to see records from 11 to 20.
+     */
+    const page = req.query.page * 1 || 1; // * 1 is used to easly convert a string to a number
+    const limit = req.query.limit * 1 || 100;
+    const skip = (page - 1) * limit; 
+    query = query.skip(skip).limit(limit);
+    if(req.query.page) {
+      const numTours = await Tour.countDocuments(); // return the number of the amount of tours
+      if(skip >= numTours) throw new Error('This page does not exist'); // if the user try to skip more documents then the actually amounts
+    }
     const tours = await query;
 
     res.status(200).json({
