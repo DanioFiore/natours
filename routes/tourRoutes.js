@@ -2,6 +2,9 @@ const express = require('express');
 const tourController = require('../controllers/tourController');
 
 const router = express.Router();
+router
+  .route('/top-5-cheap')
+  .get(tourController.aliasTopTours, tourController.getAllTours);
 
 // this is a param middleware that it only function for the url with the specified parameter. Here we can also have the val variable that is the value of our parameter
 // router.param('id', tourController.checkID);
@@ -12,5 +15,4 @@ router.route('/:id').get(tourController.getTour).delete(tourController.deleteTou
 // router.get('/api/v1/tours', getAllTours);
 // router.route('/').get(tourController.getAllTours).post(tourController.checkBody, tourController.addTour);
 router.route('/').get(tourController.getAllTours).post(tourController.createTour);
-
 module.exports = router;

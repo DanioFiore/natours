@@ -1,11 +1,17 @@
 const Tour = require('./../models/tourModel');
 
+exports.aliasTopTours = (req, res, next) => {
+  req.query.limit = '5';
+  req.query.sort = '-ratingsAverage,price';
+  req.query.fields = 'name,price,ratingsAverage,summary,difficulty';
+  next();
+};
+
 exports.getAllTours = async (req, res) => {
   try {
     // 1) Filtering
     // in JS we always create a reference to the object, but usign destructuring, we create a totally new object, a real copy
     const queryObj = { ...req.query };
-
     // here we want to exclude the pagination query parameter, because otherwise we will not have a result, given that we have no DB records that contains, for example, the page field
     const excludeFields = ['page', 'sort', 'limit', 'fields'];
     excludeFields.forEach((el) => delete queryObj[el]);
