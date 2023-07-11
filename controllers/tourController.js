@@ -78,7 +78,7 @@ exports.updateTour = async (req, res) => {
       data: {
         tour
       }
-    })
+    });
   } catch (error) {
     res.status(404).json({
       status: 'failed',
@@ -101,3 +101,53 @@ exports.deleteTour = async (req, res) => {
     }
 };
 
+/**
+ * Aggregation pipeline, is a MongoDB feature and we can use it with mongoose.
+ * We can aggregate information, like the average rating and price
+ */
+exports.getTourStats = async (req, res) => {
+  try {
+    // we put in the aggregate an array of stages
+    const stats = await Tour.aggregate([
+      {
+        $match: {
+          ratingsAverage: { $gte: 4.5 },
+        },
+      },
+      {
+        // in the aggregation, give a new name to the fields, like numTours
+        $group: {
+          _id: { $toUpper: '$difficulty'}, // always a $ in front of the field name. In this case we aggregate by the difficulty. To a better read of the grouping, we use $toUpper MongoDB operator to have an uppercase difficulty
+          numTours: { $sum: 1 }, // we sum 1 every time enter this function, so we have a total of our tours
+          numRatings: { $sum: '$ratingsQuantity' },
+          avgRating: { $avg: '$ratingsAverage' },
+          avgPrice: { $avg: '$price' },
+          minPrice: { $min: '$price' },
+          maxPrice: { $max: '$price' },
+        },
+      },
+      // after aggregation, we will use the new fields name
+      {
+        // we sort by average price previously aggregated and use 1 for ascending
+        $sort: { avgPrice: 1 }
+      },
+      {
+        // our id is now the difficulty, in this case we take the difficulty that is not equal to easy
+        // $match: { _id: { $ne: 'EASY' } },
+      }
+    ]);
+    res.status(200).json({
+      status: 'success',
+      data: {
+        stats,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'failed',
+      message: error.message,
+      error: error,
+      stack: error.stack
+    });
+  }
+}

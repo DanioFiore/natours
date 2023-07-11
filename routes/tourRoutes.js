@@ -6,6 +6,9 @@ router
   .route('/top-5-cheap')
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
+router
+  .route('/tour-stats')
+  .get(tourController.getTourStats);
 // this is a param middleware that it only function for the url with the specified parameter. Here we can also have the val variable that is the value of our parameter
 // router.param('id', tourController.checkID);
 // we can add a parameter to the url like :id and we can make it optional by adding a question mark :id?. We can access to req.params to see the url parameters
