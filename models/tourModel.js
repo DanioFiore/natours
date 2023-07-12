@@ -58,6 +58,21 @@ const tourSchema = new mongoose.Schema({
     select: false // by default we don't send that field to the client
   },
   startDates: [Date]
+}, {
+  toJSON: { virtual: true }, // to effectively see our virtual property. Every time our data will be outputted as json we call virtual
+  toObject: { virtual: true }
+});
+
+/**
+ * we use virtual to have a simply datas that will not be saved into the db, we pass to virtual the name of the data that we want to give
+ * virtual will be called every time we take out some data from our db. To the getter method we pass a regular function (not arrow)
+ * and we use a regular function when we want to use the this keyword, so everywhere in mongoose
+ * that we will set the return that will be the value of durationWeeks field. In this case, we calculate that by divide by 7 the total
+ * duration. REMEMBER to call it in the SCHEMA.
+ * We can't use virtual property in a query because is not part of a db
+ */
+tourSchema.virtual('durationWeeks').get(function() {
+  return this.duration / 7;
 });
 
 // this is the model that allows us to interact with the documents, we pass the name of the model and the schema. If we don't have a tour collection, it will be automatic created a tours(plural) collection
