@@ -7,6 +7,10 @@ router
   .get(tourController.aliasTopTours, tourController.getAllTours);
 
 router
+  .route('/monthly-plan/:year')
+  .get(tourController.getMonthlyPlan);
+
+router
   .route('/tour-stats')
   .get(tourController.getTourStats);
 // this is a param middleware that it only function for the url with the specified parameter. Here we can also have the val variable that is the value of our parameter

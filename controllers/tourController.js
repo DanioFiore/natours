@@ -151,3 +151,63 @@ exports.getTourStats = async (req, res) => {
     });
   }
 }
+
+exports.getMonthlyPlan = async (req, res) => {
+  try {
+    const year = req.params.year * 1;
+
+    const plan = await Tour.aggregate([
+      {
+        /**
+         * $unwind desructure an array and return a tour for each element of that array, for example we have a tour with an array of 3
+         * dates. It will return 3 same Tour but with different dates
+         */
+        $unwind: '$startDates',
+      },
+      {
+        $match: {
+          startDates: {
+            $gte: new Date(`${year}-01-01`),
+            $lte: new Date(`${year}-12-31`),
+          },
+        },
+      },
+      {
+        $group: {
+          _id: { $month: '$startDates' },
+          numTourStats: { $sum: 1 },
+          tours: { $push: '$name' } // use $push to create an array and in this case we push the name field of the tours
+        }
+      },
+      {
+        $addField: { month: '$_id' }, // add a new field, in the brackets we put the name of the new field and wich field we want to 'copy'
+      },
+      {
+        // select the fields name, with 0 it will not showing up, instead with 1 it will showing up
+        $project: {
+          _id: 0
+        }
+      },
+      {
+        $sort: { numTourStats: -1 } // descending 
+      }, 
+      {
+        $limit: 12 // limit the output we will see
+      }
+    ]);
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        plan,
+      },
+    });
+  } catch (error) {
+    res.status(404).json({
+      status: 'failed',
+      message: error.message,
+      error: error,
+      stack: error.stack,
+    });
+  }
+}
