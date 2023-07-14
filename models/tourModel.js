@@ -1,5 +1,6 @@
 // this is the schema, where we define the documents property
 const mongoose = require('mongoose');
+const slugify = require('slugify');
 
 const tourSchema = new mongoose.Schema({
   name: {
@@ -8,6 +9,7 @@ const tourSchema = new mongoose.Schema({
     unique: true,
     trim: true
   },
+  slug: String,
   duration: {
     type: Number,
     required: [true, 'A tour must have a name']
@@ -74,6 +76,23 @@ const tourSchema = new mongoose.Schema({
 tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
 });
+
+/**
+ * MONGOOSE DOCUMENT MIDDLEWARE: it runs before an event was triggered, in this case, .save() and .create()
+ * If we use 'this', that will point to the actual document that is actually process, the document that is saving
+ * so when we call a save endpoint of the tour, we can access to the tour before it will be saved in the db
+ */
+// tourSchema.pre('save', function(next) {
+//   this.slug = slugify(this.name, {lower: true}); // remember to add to the schema
+//   next();
+// });
+
+/**
+ * post will be executed after the triggered event, so after a save in the db, and we have access to the doc
+ */
+// tourSchema.post('save', function(doc, next) {
+//   console.log(doc);
+// });
 
 // this is the model that allows us to interact with the documents, we pass the name of the model and the schema. If we don't have a tour collection, it will be automatic created a tours(plural) collection
 const Tour = mongoose.model('Tour', tourSchema);
