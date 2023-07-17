@@ -121,6 +121,15 @@ tourSchema.post(/^find/, function(doc, next) {
   next();
 });
 
+/**
+ * AGGREGATION WIDDLEWARE: like the document and query middleware, but we can have access to the actual aggregation object with the this keyword
+ */
+tourSchema.pre('aggregate', function(next) {
+
+  this.pipeline().unshift({ $match: {secretTour: { $ne: true }} })
+  console.log(this.pipeline()); // * the pipeline method is used to have access to the array we passed to the aggregation object ($match, $group, $sort)
+  next();
+});
 
 // this is the model that allows us to interact with the documents, we pass the name of the model and the schema. If we don't have a tour collection, it will be automatic created a tours(plural) collection
 const Tour = mongoose.model('Tour', tourSchema);
