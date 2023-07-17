@@ -59,7 +59,11 @@ const tourSchema = new mongoose.Schema({
     default: Date.now(),
     select: false // by default we don't send that field to the client
   },
-  startDates: [Date]
+  startDates: [Date],
+  secretTour: {
+    type: Boolean,
+    default: false
+  }
 }, {
   toJSON: { virtual: true }, // to effectively see our virtual property. Every time our data will be outputted as json we call virtual
   toObject: { virtual: true }
@@ -93,6 +97,30 @@ tourSchema.virtual('durationWeeks').get(function() {
 // tourSchema.post('save', function(doc, next) {
 //   console.log(doc);
 // });
+
+/**
+ * MONGOOSE QUERY MIDDLEWARE: here we execute a function before or after a query, not a document.
+ * In this case we listen to the find event, so this function will be executed BEFORE a query that starts with find (findOne, findOneAndDelete) method will be launched, like in our
+ * tourController.getAllTours
+ */
+tourSchema.pre(/^find/, function(next) {
+  // * with this keyword we reference to the actual query, so we can use all the query method
+  this.find({secretTour: { $ne: true }});
+
+  // * the query is like a regular object so we can give to it a property
+  this.start = Date.now();
+  next();
+});
+
+/**
+ * Post query middleware will be executed after the query and we can have access to the document that the query returned
+ */
+tourSchema.post(/^find/, function(doc, next) {
+
+  console.log(doc);
+  next();
+});
+
 
 // this is the model that allows us to interact with the documents, we pass the name of the model and the schema. If we don't have a tour collection, it will be automatic created a tours(plural) collection
 const Tour = mongoose.model('Tour', tourSchema);
