@@ -19,9 +19,6 @@ app.use(express.json());
 app.use(express.static(`${__dirname}/public`));
 
 // even a simple route is a middleware in express, the middlewares are executed in order in the code, so if i put a middleware up here, and don't specify a route, it will be applied to all the route, if we put it after the route (that is a middleware like i said before) it will not work
-app.use((req, res, next) => {
-    next();
-})
 
 app.use((req, res, next) => {
     // now this property is accessible in ALL our routes
@@ -33,4 +30,14 @@ app.use((req, res, next) => {
 app.use('/api/v1/tours', tourRouter);
 app.use('/api/v1/users', userRouter);
 
+/**
+ * This is a route handler. If the request come to this point, that it means that either in tourRouter or userRouter have find a match, so it's a route that we have to catch instead to have a 404 error.
+ * .all() is a method that means for ALL the HTTP verbs (get, post..)
+ */
+app.all('*', (req, res, next) => {
+  res.status(404).json({
+    status: 'fail',
+    message: `Can't find ${req.originalUrl} on this server!`
+  });
+});
 module.exports = app;
