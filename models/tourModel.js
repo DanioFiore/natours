@@ -1,6 +1,7 @@
 // this is the schema, where we define the documents property
 const mongoose = require('mongoose');
 const slugify = require('slugify');
+const validator = require('validator');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -9,8 +10,11 @@ const tourSchema = new mongoose.Schema(
       required: [true, 'A tour must have a name'],
       unique: true,
       trim: true,
+      // * simple built-in mongoose validation
       maxlength: [40, 'A tour name must have less or equal then 40 characters'],
       minlength: [10, 'A tour name must have more or equal then 10 characters'],
+      // * validator.js
+      validate: [validator.isAlpha, 'Tour name must only contain characters'] // * we didn't call the isAlpha function here, so we don't put the ()
     },
     slug: String,
     duration: {
@@ -46,6 +50,14 @@ const tourSchema = new mongoose.Schema(
     },
     priceDiscount: {
       type: Number,
+      // * custom validator, we want to check if the price discount is less than the real price
+      validate: {
+        validator: function(val) {
+          // * this function will not work with the update method. Only when creating a new document. The this keyword point to the actual document
+          return val < this.price; // * it return true or false, if false, the validator fails
+        },
+        message: 'Discount price ({VALUE}) should be below the regular price' // * in ({VALUE}) we have the actual price
+      }
     },
     summary: {
       type: String,
