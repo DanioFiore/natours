@@ -1,6 +1,12 @@
 const mongoose = require('mongoose');
 const dotenv = require('dotenv');
 
+// handling an uncaught exception
+process.on('uncaughtException', err => {
+
+  process.exit(1); // 1 indicates an unhandled rejection
+})
+
 // we installed dotenv that is used to read our config.env file
 dotenv.config({path: './config.env'});
 
@@ -23,6 +29,17 @@ mongoose
     console.log('DB connection successfull');
   });
 
-app.listen(process.env.PORT, () => {
+const server = app.listen(process.env.PORT, () => {
   console.log('Server running on port ' + process.env.PORT);
-})
+});
+
+// if we have a problem with the server, we have to handle that error because if the server didn't work, we can't use our error middleware
+// handling an unhandled rejection
+process.on('unhandledRejection', err => {
+  
+  server.close(() => {
+
+    process.exit(1); // 1 indicates an unhandled rejection
+  });
+});
+
