@@ -12,7 +12,15 @@ const handleDuplicateFieldsDB = err => {
   const message = `Duplicate field value: ${value}. PLease use another value.`;
 
   return new AppError(message, 500);
-}
+};
+
+const handleValidationErrorDB = err => {
+
+  const errors = Object.values(err.errors).map(el = el.message);
+  const message = `Invalid input data. ${errors.join('. ')}`;
+  
+  return new AppError(message, 400);
+};
 
 const sendErrorDev = (err, res) => {
 
@@ -22,7 +30,7 @@ const sendErrorDev = (err, res) => {
     message: err.message,
     stack: err.stack
   });
-}
+};
 
 const sendErrorProd = (err, res) => {
 
@@ -56,6 +64,7 @@ module.exports = (err, req, res, next) => {
     let error = null;
     if(err.name === 'CastError') error = handleCastErrorDB(err);
     if(err.code === 11000) error = handleDuplicateFieldsDB(err);
+    if(err.name === 'ValidationError') error = handleValidationErrorDB(err);
 
     sendErrorProd(error, res);
   }
