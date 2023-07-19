@@ -40,4 +40,21 @@ app.all('*', (req, res, next) => {
     message: `Can't find ${req.originalUrl} on this server!`
   });
 });
+
+/**
+ * Error handling middleware. Express.js recognise it as an error middleware when we give to it 4 arguments, in this way when
+ * an error occurse, it goes to this middleware.
+ * So, in every middleware, we an error occurs, when used next() it will skip the order of the middleware and going directly 
+ * here in our error handling middleware
+ */
+app.use((err, req, res, next) => {
+  err.statusCode = err.statusCode || 500;
+  err.status = err.status || 'error';
+
+
+  res.status(err.statusCode.json({
+    status: err.status,
+    message: err.message
+  }));
+});
 module.exports = app;
