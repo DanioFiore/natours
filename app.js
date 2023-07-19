@@ -47,4 +47,5 @@ app.all('*', (req, res, next) => {
  * here in our error handling middleware
  */
 app.use(globalErrorHandler);
+
 module.exports = app;

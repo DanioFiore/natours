@@ -1,4 +1,21 @@
+const AppError = require('./../utils/appError');
+
+const handleCastErrorDB = err => {
+
+  const message = `Invalid ${err.path}: ${err.value}.`
+  return new AppError(message, 400);
+};
+
+const handleDuplicateFieldsDB = err => {
+
+  const value = err.errmsg.match(/(["'])(\\?.)*?\1/)[0];
+  const message = `Duplicate field value: ${value}. PLease use another value.`;
+
+  return new AppError(message, 500);
+}
+
 const sendErrorDev = (err, res) => {
+
   res.status(err.statusCode).json({
     status: err.status,
     error: err,
@@ -27,17 +44,19 @@ const sendErrorProd = (err, res) => {
 }
 
 module.exports = (err, req, res, next) => {
+
   err.statusCode = err.statusCode || 500;
   err.status = err.status || 'error';
-
-
+  
   // * we separate the error response, if we are in development mode we want more information, if we are in production, we have to give less information to the client
   if(process.env.NODE_ENV === 'development') {
-  
+    
     sendErrorDev(err, res);
   } else if(process.env.NODE_ENV === 'production') {
+    let error = null;
+    if(err.name === 'CastError') error = handleCastErrorDB(err);
+    if(err.code === 11000) error = handleDuplicateFieldsDB(err);
 
-    sendErrorProd(err, res);
+    sendErrorProd(error, res);
   }
-
 };
