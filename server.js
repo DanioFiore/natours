@@ -42,5 +42,3 @@ process.on('unhandledRejection', err => {
     process.exit(1); // 1 indicates an unhandled rejection
   });
 });
-
-//test
