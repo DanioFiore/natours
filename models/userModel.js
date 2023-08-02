@@ -20,7 +20,8 @@ const userSchema = mongoose.Schema({
     password: {
         type: String,
         required: [true, 'Please provide a password'],
-        minlength: 8
+        minlength: 8,
+        select: false
     },
     passwordConfirm: {
         type: String,
@@ -45,6 +46,16 @@ userSchema.pre('save', async function(next) {
     // Delete the password confirm field, we don't need it
     this.passwordConfirm = undefined;
 })
+
+/**
+ * Instance method, a method that will be available for every instance of this document, in this case every user. We need to compare with bcrypt
+ * because the user that login insert a password that is not hashed, like the password we retrieve from the DB, so if we didn't use bcrypt, we 
+ * can never compare the two passwords
+ * 
+ */
+userSchema.methods.comparePasswords = async (candidatePassword, userPassword) => {
+    return await bcrypt.compare(candidatePassword, userPassword);
+}
 
 const User = mongoose.model('User', userSchema);
 
