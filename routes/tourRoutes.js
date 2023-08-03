@@ -1,6 +1,7 @@
 const express = require('express');
 const tourController = require('../controllers/tourController');
 const catchAsync = require('../utils/catchAsync');
+const authController = require('../controllers/authController');
 
 const router = express.Router();
 
@@ -31,7 +32,7 @@ router
 // router.route('/').get(tourController.getAllTours).post(tourController.checkBody, tourController.addTour);
 router
   .route('/')
-  .get(tourController.getAllTours)
+  .get(authController.protect, tourController.getAllTours)
   .post(tourController.createTour);
 
 

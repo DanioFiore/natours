@@ -51,3 +51,24 @@ exports.login = catchAsync( async (req, res, next) => {
         token
     });
 });
+
+exports.protect = catchAsync( async (req, res, next) => {
+    // 1) Check the token
+    /**
+     * Normally, the JWT will be in the header, we can access to it with the autorization voice, and it's value will be splitted in 2:
+     * and will start with Bearer, followed by the token itself.
+     * headers; {
+     *  'authorization': 'Bearer tokenonrewgoiwj209ur90324390ejoiqd932'
+     * }
+     *  
+     */ 
+    let token;
+    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
+        token = req.headers.authorization.split(' ')[1];
+    }
+
+    if(!token) {
+        return new AppError('You are not logged in.', 401)
+    }
+    next();
+})
