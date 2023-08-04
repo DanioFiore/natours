@@ -1,3 +1,4 @@
+const {promisify} = require('util');
 const User = require('./../models/userModel');
 const catchAsync = require('./../utils/catchAsync');
 const jwt = require('jsonwebtoken');
@@ -53,22 +54,49 @@ exports.login = catchAsync( async (req, res, next) => {
 });
 
 exports.protect = catchAsync( async (req, res, next) => {
-    // 1) Check the token
-    /**
-     * Normally, the JWT will be in the header, we can access to it with the autorization voice, and it's value will be splitted in 2:
-     * and will start with Bearer, followed by the token itself.
-     * headers; {
-     *  'authorization': 'Bearer tokenonrewgoiwj209ur90324390ejoiqd932'
-     * }
-     *  
-     */ 
-    let token;
-    if(req.headers.authorization && req.headers.authorization.startsWith('Bearer')) {
-        token = req.headers.authorization.split(' ')[1];
-    }
+  // 1) Check the token
+  /**
+   * Normally, the JWT will be in the header, we can access to it with the autorization voice, and it's value will be splitted in 2:
+   * and will start with Bearer, followed by the token itself.
+   * headers; {
+   *  'authorization': 'Bearer tokenonrewgoiwj209ur90324390ejoiqd932'
+   * }
+   *
+   */
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith('Bearer')
+  ) {
+    token = req.headers.authorization.split(' ')[1];
+  }
 
-    if(!token) {
-        return new AppError('You are not logged in.', 401)
-    }
-    next();
+  if (!token) {
+    return new AppError('You are not logged in.', 401);
+  }
+
+  // 2) Verification token. Check if the jwt payload isn't manipulated by 3 parts
+  /**
+   * Promisify is used to await a promise of a function and then execute the function
+   * decoded will contain the user id
+   */
+  const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
+
+  // 3) Check the user still exists, for example, someone stole the JWT and try to have access to a deleted account
+  const currentUser = await User.findById(decoded.id);
+  if (!currentUser) {
+    return next(
+      new AppError('The user belonging to this token no longer exists')
+    );
+  }
+
+  // 4) Check if user change the password after an issue
+  // iat is the timestamp
+  if (currentUser.changedPasswordAfter(decoded.iat)) {
+    return next(new AppError('User recently changed the password, please log in again', 401));
+  }
+  
+  // GRANT ACCESS TO PROTECTED ROUTE
+  req.user = currentUser;
+  next();
 })
