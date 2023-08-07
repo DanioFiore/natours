@@ -100,3 +100,17 @@ exports.protect = catchAsync( async (req, res, next) => {
   req.user = currentUser;
   next();
 })
+
+/**
+ * We can't pass parameters to a middleware, but like this we can user the rest method ... to take the argument and return our middleware * * * *function
+ * 
+ */
+exports.restrictTo = (...roles) => {
+  return (req, res, next) => {
+    if(!roles.includes(req.user.role)) {
+      return next(new AppError('You have not the permissions to perform this actions', 403));
+    }
+
+    next();
+  }
+}

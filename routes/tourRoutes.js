@@ -23,7 +23,7 @@ router
 router
   .route('/:id')
   .get(tourController.getTour)
-  .delete(tourController.deleteTour)
+  .delete(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourController.deleteTour)
   .patch(tourController.updateTour);
 
 // we can add together the request with the same url
