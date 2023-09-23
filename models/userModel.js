@@ -56,6 +56,16 @@ userSchema.pre('save', async function(next) {
     this.passwordConfirm = undefined;
 })
 
+userSchema.pre('save', function(next) {
+    if(!this.isModified('password') || this.isNew) {
+        return next();
+    }
+
+    // PUT 1SEC IN THE PAST THE TIMESTAMP BECAUSE SOMETIMES THE JWT TAKE TIME TO BE SAVED IN THE DB
+    this.passwordChangedAt = Date.now() - 1000;
+    next();
+})
+
 /**
  * Instance method, a method that will be available for every instance of this document, in this case every user. We need to compare with bcrypt
  * because the user that login insert a password that is not hashed, like the password we retrieve from the DB, so if we didn't use bcrypt, we 
