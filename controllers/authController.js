@@ -67,7 +67,7 @@ exports.protect = catchAsync( async (req, res, next) => {
   }
 
   if (!token) {
-    return new AppError('You are not logged in.', 401);
+    return next(new AppError('You are not logged in.', 401));
   }
 
   // 2) Verification token. Check if the jwt payload isn't manipulated by 3 parts
@@ -87,9 +87,9 @@ exports.protect = catchAsync( async (req, res, next) => {
 
   // 4) Check if user change the password after an issue
   // iat is the timestamp
-  if (currentUser.changedPasswordAfter(decoded.iat)) {
-    return next(new AppError('User recently changed the password, please log in again', 401));
-  }
+  // if (currentUser.changedPasswordAfter(decoded.iat)) {
+  //   return next(new AppError('User recently changed the password, please log in again', 401));
+  // }
   
   // GRANT ACCESS TO PROTECTED ROUTE
   req.user = currentUser;
