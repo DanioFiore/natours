@@ -42,7 +42,12 @@ const userSchema = mongoose.Schema({
     },
     passwordChangedAt: Date,
     passwordResetToken: String,
-    passwordResetExpires: Date
+    passwordResetExpires: Date,
+    active: {
+        type: Boolean,
+        default: true,
+        select: false
+    }
 });
 
 userSchema.pre('save', async function(next) {
@@ -63,6 +68,13 @@ userSchema.pre('save', function(next) {
 
     // PUT 1SEC IN THE PAST THE TIMESTAMP BECAUSE SOMETIMES THE JWT TAKE TIME TO BE SAVED IN THE DB
     this.passwordChangedAt = Date.now() - 1000;
+    next();
+})
+
+userSchema.pre(/^find/, function(next) {
+    // at this point we had a lot of records without the active field. So we use active $not e qual to false, so we retrieve all the records that doesn't have that field
+    this.find({active: {$ne: false}});
+
     next();
 })
 
