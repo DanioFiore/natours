@@ -15,6 +15,29 @@ const signToken = id => {
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id);
 
+  /**
+   * Send the token back with cookie to have a more secure method. 
+   * 1st parameter, cookie name
+   * 2nd our token
+   * 3rd the data of the cookie, essentially an expiring date that is from now to 90 days formatted in milliseconds
+   * secure allows to use HTTPS, and httpOnly grants to send it back only for http requests
+   * But now we are not in HTTPS, so we want to set the secure property only when we are in production mode
+   */
+
+  const cookieObject = {
+    expires: new Date(
+      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
+    ),
+    httpOnly: true,
+  };
+
+  if(process.env.NODE_ENV === 'production') cookieObject.secure = true;
+
+  res.cookie('jwt', token, cookieObject);
+
+  // REMOVE THE PASSWORD FROM THE OUTPUT
+  user.password = undefined;
+
   res.status(statusCode).json({
     status: 'success',
     token,
