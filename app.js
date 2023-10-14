@@ -7,6 +7,7 @@ const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
 const mongoSanitize = require('express-mongo-sanitize');
 const xss = require('xss-clean');
+const hpp = require('hpp');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -44,6 +45,14 @@ app.use(mongoSanitize());
  * Protect us from a malicius html code in the request
  */
 app.use(xss());
+
+// PREVENT PARAMETER POLLUTION
+/**
+ * For example if someone try to put in the query string 2 sort parameter, we only take the last one. But we need also a whitelist parameter to prevent this behavior for certain parameter, like the price
+ */
+app.use(hpp({
+  whitelist: ['duration', 'ratingsQuantity', 'ratingsAverage', 'maxGroupSize', 'difficulty', 'price']
+}));
 
 // this middleware i used for the static file, so now we can access to our html. Under the hood, happens that when we searh in our browser 127.0.0.1:3001/overview.html, express start to search for this url, and when he don't find that, go in the public folder and search for the overview.html file
 app.use(express.static(`${__dirname}/public`));
