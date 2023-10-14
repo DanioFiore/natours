@@ -5,6 +5,8 @@ const AppError = require('./utils/appError');
 const globalErrorHandler = require('./controllers/errorController');
 const rateLimit = require('express-rate-limit');
 const helmet = require('helmet');
+const mongoSanitize = require('express-mongo-sanitize');
+const xss = require('xss-clean');
 
 const tourRouter = require('./routes/tourRoutes');
 const userRouter = require('./routes/userRoutes');
@@ -31,6 +33,18 @@ app.use('/api', limiter);
 
 // json is a middleware used to parse the body
 app.use(express.json({limit: '10kb'}));
+
+// DATA SANITIZATION AGAINST NOSQL QUERY INJECTION.
+/**
+ * This will check al the $ sign and dots. Because we can login even if we know only the password and put as email $gt
+ */
+app.use(mongoSanitize());
+// DATA SANITIZATION AGAINST CROSS SITE ATTACKS. 
+/**
+ * Protect us from a malicius html code in the request
+ */
+app.use(xss());
+
 // this middleware i used for the static file, so now we can access to our html. Under the hood, happens that when we searh in our browser 127.0.0.1:3001/overview.html, express start to search for this url, and when he don't find that, go in the public folder and search for the overview.html file
 app.use(express.static(`${__dirname}/public`));
 
