@@ -14,7 +14,10 @@ const tourSchema = new mongoose.Schema(
       maxlength: [40, 'A tour name must have less or equal then 40 characters'],
       minlength: [10, 'A tour name must have more or equal then 10 characters'],
       // * validator.js
-      validate: [validator.isAlpha, 'Tour name must only contain characters'] // * we didn't call the isAlpha function here, so we don't put the ()
+      validate: {
+        validator: (val) => validator.isAlpha(val, ['en-US'], { ignore: ' ' }),
+        message: 'Tour name must only contain characters',
+      },
     },
     slug: String,
     duration: {
@@ -31,7 +34,7 @@ const tourSchema = new mongoose.Schema(
       enum: {
         // * this is the real validator syntax, we can't use the shortand here because we have an enum
         values: ['easy', 'medium', 'difficult'],
-        message: 'Difficulty is either: easy, medium, difficult'
+        message: 'Difficulty is either: easy, medium, difficult',
       },
     },
     ratingsAverage: {
@@ -52,12 +55,12 @@ const tourSchema = new mongoose.Schema(
       type: Number,
       // * custom validator, we want to check if the price discount is less than the real price
       validate: {
-        validator: function(val) {
+        validator: function (val) {
           // * this function will not work with the update method. Only when creating a new document. The this keyword point to the actual document
           return val < this.price; // * it return true or false, if false, the validator fails
         },
-        message: 'Discount price ({VALUE}) should be below the regular price' // * in ({VALUE}) we have the actual price
-      }
+        message: 'Discount price ({VALUE}) should be below the regular price', // * in ({VALUE}) we have the actual price
+      },
     },
     summary: {
       type: String,
@@ -87,6 +90,31 @@ const tourSchema = new mongoose.Schema(
       type: Boolean,
       default: false,
     },
+    startLocation: {
+      // GeoJSON to specify geospecial data
+      type: {
+        type: String,
+        default: 'Point',
+        enum: ['Point'],
+      },
+      coordinates: [Number], // Expect an arrya of numbers
+      address: String,
+      description: String,
+    },
+    // HERE WE USE AN ARRAY TO EMBED THE STARTLOCATIONS
+    locations: [
+      {
+        type: {
+          type: String,
+          default: 'Point',
+          enum: ['Point'],
+        },
+        coordinates: [Number],
+        address: String,
+        description: String,
+        day: Number,
+      },
+    ],
   },
   {
     toJSON: { virtual: true }, // to effectively see our virtual property. Every time our data will be outputted as json we call virtual
