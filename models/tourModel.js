@@ -2,6 +2,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
+const User = require('./userModel');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -115,6 +116,7 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
+    guides: Array
   },
   {
     toJSON: { virtual: true }, // to effectively see our virtual property. Every time our data will be outputted as json we call virtual
@@ -139,10 +141,18 @@ tourSchema.virtual('durationWeeks').get(function() {
  * If we use 'this', that will point to the actual document that is actually process, the document that is saving
  * so when we call a save endpoint of the tour, we can access to the tour before it will be saved in the db
  */
-// tourSchema.pre('save', function(next) {
-//   this.slug = slugify(this.name, {lower: true}); // remember to add to the schema
-//   next();
-// });
+tourSchema.pre('save', function(next) {
+  this.slug = slugify(this.name, {lower: true}); // remember to add to the schema
+  next();
+});
+
+// Save also the guides complete documents, so embed the data
+tourSchema.pre('save', async function(next) {
+  // it will be an array of promises that will run with Promise.all
+  const guidesPromises = this.guides.map(async id => await User.findById(id));
+  this.guides = await Promise.all(guidesPromises);
+  next();
+});
 
 /**
  * post will be executed after the triggered event, so after a save in the db, and we have access to the doc
