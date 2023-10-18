@@ -2,7 +2,7 @@
 const mongoose = require('mongoose');
 const slugify = require('slugify');
 const validator = require('validator');
-const User = require('./userModel');
+// const User = require('./userModel');
 
 const tourSchema = new mongoose.Schema(
   {
@@ -116,7 +116,13 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    guides: Array
+    // reference user to the tour 
+    guides: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: 'User'
+      }
+    ]
   },
   {
     toJSON: { virtual: true }, // to effectively see our virtual property. Every time our data will be outputted as json we call virtual
@@ -146,13 +152,13 @@ tourSchema.pre('save', function(next) {
   next();
 });
 
-// Save also the guides complete documents, so embed the data
-tourSchema.pre('save', async function(next) {
-  // it will be an array of promises that will run with Promise.all
-  const guidesPromises = this.guides.map(async id => await User.findById(id));
-  this.guides = await Promise.all(guidesPromises);
-  next();
-});
+// Save also the guides complete documents, so embed the data. That is only an examble if we want to save it to the DB, but now we use referencing and not embedding
+// tourSchema.pre('save', async function(next) {
+//   // it will be an array of promises that will run with Promise.all
+//   const guidesPromises = this.guides.map(async id => await User.findById(id));
+//   this.guides = await Promise.all(guidesPromises);
+//   next();
+// });
 
 /**
  * post will be executed after the triggered event, so after a save in the db, and we have access to the doc
