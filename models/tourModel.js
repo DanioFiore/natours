@@ -181,14 +181,24 @@ tourSchema.pre(/^find/, function(next) {
   next();
 });
 
+tourSchema.pre(/^find/, function(next) {
+  // With populate, we populate the guides in our tour document, where the guides are referenced and not embedded, so in the guides field we have the ids and we replace that id with the guide document.
+  this.populate({
+    path: 'guides',
+    select: '-__v -passwordChangedAt',
+  });
+
+  next();
+});
 /**
  * Post query middleware will be executed after the query and we can have access to the document that the query returned
  */
-tourSchema.post(/^find/, function(doc, next) {
+tourSchema.post(/^find/, function(docs, next) {
 
-  console.log(doc);
+  console.log(`Query took ${Date.now() - this.start} milliseconds!`);
   next();
 });
+
 
 /**
  * AGGREGATION WIDDLEWARE: like the document and query middleware, but we can have access to the actual aggregation object with the this keyword
