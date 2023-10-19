@@ -116,16 +116,16 @@ const tourSchema = new mongoose.Schema(
         day: Number,
       },
     ],
-    // reference user to the tour 
+    // reference user to the tour
     guides: [
       {
         type: mongoose.Schema.ObjectId,
-        ref: 'User'
-      }
-    ]
+        ref: 'User',
+      },
+    ],
   },
   {
-    toJSON: { virtual: true }, // to effectively see our virtual property. Every time our data will be outputted as json we call virtual
+    toJSON: { virtual: true }, // to effectively see our virtual property, so a field that is not stored in the DB but calculated using some other value
     toObject: { virtual: true },
   }
 );
