@@ -125,8 +125,8 @@ const tourSchema = new mongoose.Schema(
     ],
   },
   {
-    toJSON: { virtual: true }, // to effectively see our virtual property, so a field that is not stored in the DB but calculated using some other value
-    toObject: { virtual: true },
+    toJSON: { virtuals: true }, // to effectively see our virtual property, so a field that is not stored in the DB but calculated using some other value
+    toObject: { virtuals: true },
   }
 );
 
@@ -141,6 +141,22 @@ const tourSchema = new mongoose.Schema(
 tourSchema.virtual('durationWeeks').get(function() {
   return this.duration / 7;
 });
+
+/**
+ * Virtual populate allows us to connect 2 models without have an array of ids as a field.
+ * For example in this case, instead of write the review field in the model, we use this virtual
+ * populate so, in the review field, we reference the Review model, a foreignField that is
+ * the name of this model in the review model, so 'tour', and the localField that is the 
+ * record's _id.
+ * To make this work, we have to populate into the function we desire, passing 'reviews', for
+ * example, in getTour
+ */
+tourSchema.virtual('reviews', {
+  ref: 'Review',
+  // THIS IS THE FIELD IN THE REVIEWMODEL
+  foreignField: 'tour',
+  localField: '_id'
+})
 
 /**
  * MONGOOSE DOCUMENT MIDDLEWARE: it runs before an event was triggered, in this case, .save() and .create()

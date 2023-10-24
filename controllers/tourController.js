@@ -30,7 +30,7 @@ exports.getAllTours = catchAsync(async (req, res, next) => {
 });
 
 exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id) // we access to id that is the /:id we put in the url
+  const tour = await Tour.findById(req.params.id).populate('reviews'); // we access to id that is the /:id we put in the url
   // findById is a mongoose method, it's a shorthand of this Tour.findOne({_id: req.params.id})
 
   if (!tour) {
