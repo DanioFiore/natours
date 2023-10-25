@@ -2,6 +2,8 @@ const express = require('express');
 const tourController = require('../controllers/tourController');
 const catchAsync = require('../utils/catchAsync');
 const authController = require('../controllers/authController');
+const reviewController = require('../controllers/reviewController');
+
 
 const router = express.Router();
 
@@ -23,7 +25,7 @@ router
 router
   .route('/:id')
   .get(tourController.getTour)
-  .delete(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourController.deleteTour)
+  .delete(authController.protect, authController.restrictTo('admin', 'lead-guide', 'user'), tourController.deleteTour)
   .patch(tourController.updateTour);
 
 // we can add together the request with the same url
@@ -34,6 +36,15 @@ router
   .route('/')
   .get(authController.protect, tourController.getAllTours)
   .post(tourController.createTour);
+
+// NESTED ROUTE
+router
+  .route('/:tourId/reviews')
+  .post(
+    authController.protect,
+    authController.restrictTo('admin', 'user'),
+    reviewController.createReview
+  );
 
 
 module.exports = router;

@@ -124,7 +124,9 @@ exports.protect = catchAsync( async (req, res, next) => {
  * 
  */
 exports.restrictTo = (...roles) => {
+  console.log("🚀 ~ file: authController.js:127 ~ roles:", roles)
   return (req, res, next) => {
+    console.log(req.user.role);
     if(!roles.includes(req.user.role)) {
       return next(new AppError('You have not the permissions to perform this actions', 403));
     }

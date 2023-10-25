@@ -3,6 +3,11 @@ const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 
 exports.createReview = catchAsync(async (req, res, next) => {
+    // ALLOW NESTED ROUTES
+    // IF WE DON'T SPECIFY THE TOUR ID, SO RETRIEVE IT FROM THE URL
+    if (!req.body.tour) req.body.tour = req.params.tourId;
+    if (!req.body.user) req.body.user = req.user.id;
+
     const newReview = await Review.create(req.body);
 
     res.status(201).json({
