@@ -19,7 +19,10 @@ exports.createReview = catchAsync(async (req, res, next) => {
 })
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
-    const reviews = await Review.find();
+    // IN THIS WAY, WE SET THE FILTER OBJ, IF WE FIND A TOURID IN THE URL, SO WE RETRIEVE ONE TOUR, IF WE DIDN'T FIND IT, THE FILTER OBJ WILL BE EMPTY ALL THE FIND METHOD WILL RETRIEVE ALL THE REVIEWS
+    let filter = {};
+    if (req.params.tourId) filter = {tour: req.params.tourId};
+    const reviews = await Review.find(filter);
 
     res.status(200).json({
         stauts: 'success',
