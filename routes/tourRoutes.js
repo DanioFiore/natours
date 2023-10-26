@@ -2,7 +2,8 @@ const express = require('express');
 const tourController = require('../controllers/tourController');
 const catchAsync = require('../utils/catchAsync');
 const authController = require('../controllers/authController');
-const reviewController = require('../controllers/reviewController');
+// const reviewController = require('../controllers/reviewController');
+const reviewRouter = require('../routes/reviewRoutes');
 
 
 const router = express.Router();
@@ -38,13 +39,16 @@ router
   .post(tourController.createTour);
 
 // NESTED ROUTE
-router
-  .route('/:tourId/reviews')
-  .post(
-    authController.protect,
-    authController.restrictTo('admin', 'user'),
-    reviewController.createReview
-  );
+// router
+//   .route('/:tourId/reviews')
+//   .post(
+//     authController.protect,
+//     authController.restrictTo('admin', 'user'),
+//     reviewController.createReview
+//   );
+
+// LIKE THIS, WE SAY THAT WHEN WE ENCOUNTER THIS ENDPOINT, WE WILL USE THE REVIEWROUTER
+router.use('/:tourId/reviews', reviewRouter);
 
 
 module.exports = router;
