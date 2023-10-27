@@ -1,6 +1,7 @@
 const Review = require('./../models/reviewModel');
 const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
+const factory = require('./handlerFactory');
 
 exports.createReview = catchAsync(async (req, res, next) => {
     // ALLOW NESTED ROUTES
@@ -32,3 +33,6 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
         }
     })
 })
+
+// INSTEAD OF HAVE A DELETE FUNCTION EXPLICITY FOR THIS CONTROLLER, WE CREATE A DELETE FUNCTION GLOBAL, AND ALL WE NEED TO DO Is PASS THE MODEL NAME
+exports.deleteReview = factory.deleteOne(Review);
