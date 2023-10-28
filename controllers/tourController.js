@@ -12,42 +12,10 @@ exports.aliasTopTours = (req, res, next) => {
 };
 
 
-exports.getAllTours = catchAsync(async (req, res, next) => {
-  // this chain methods works because we return this in every method
-  const features = new APIFeatures(Tour.find(), req.query)
-    .filter()
-    .sort()
-    .limitFields()
-    .paginate();
-  const tours = await features.query;
+exports.getAllTours = factory.getAll(Tour);
 
-  res.status(200).json({
-    status: 'success',
-    results: tours.length,
-    data: {
-      tours,
-    },
-  });
-});
-
-exports.getTour = catchAsync(async (req, res, next) => {
-  const tour = await Tour.findById(req.params.id).populate('reviews'); // we access to id that is the /:id we put in the url
-  // findById is a mongoose method, it's a shorthand of this Tour.findOne({_id: req.params.id})
-
-  if (!tour) {
-    return next(new AppError('No tour found with that id', 404));
-  }
-
-  res.status(200).json({
-    status: 'success',
-    data: {
-      tour,
-    },
-  });
-});
-
+exports.getTour = factory.getOne(Tour, { path: 'reviews' }); // pass the populate
 exports.createTour = factory.createOne(Tour);
-
 exports.updateTour = factory.updateOne(Tour);
 
 // INSTEAD OF HAVE A DELETE FUNCTION EXPLICITY FOR THIS CONTROLLER, WE CREATE A DELETE FUNCTION GLOBAL, AND ALL WE NEED TO DO Is PASS THE MODEL NAME
