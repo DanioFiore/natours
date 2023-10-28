@@ -3,21 +3,15 @@ const AppError = require('./../utils/appError');
 const catchAsync = require('./../utils/catchAsync');
 const factory = require('./handlerFactory');
 
-exports.createReview = catchAsync(async (req, res, next) => {
-    // ALLOW NESTED ROUTES
-    // IF WE DON'T SPECIFY THE TOUR ID, SO RETRIEVE IT FROM THE URL
-    if (!req.body.tour) req.body.tour = req.params.tourId;
-    if (!req.body.user) req.body.user = req.user.id;
+exports.setTourUserIds = (req, res, next) => {
+  // ALLOW NESTED ROUTES
+  // IF WE DON'T SPECIFY THE TOUR ID, SO RETRIEVE IT FROM THE URL
+  if (!req.body.tour) req.body.tour = req.params.tourId;
+  if (!req.body.user) req.body.user = req.user.id;
 
-    const newReview = await Review.create(req.body);
-
-    res.status(201).json({
-        status: 'success',
-        data: {
-            newReview
-        }
-    });
-})
+  next();
+}
+exports.createReview = factory.createOne(Review);
 
 exports.getAllReviews = catchAsync(async (req, res, next) => {
     // IN THIS WAY, WE SET THE FILTER OBJ, IF WE FIND A TOURID IN THE URL, SO WE RETRIEVE ONE TOUR, IF WE DIDN'T FIND IT, THE FILTER OBJ WILL BE EMPTY ALL THE FIND METHOD WILL RETRIEVE ALL THE REVIEWS
@@ -36,3 +30,5 @@ exports.getAllReviews = catchAsync(async (req, res, next) => {
 
 // INSTEAD OF HAVE A DELETE FUNCTION EXPLICITY FOR THIS CONTROLLER, WE CREATE A DELETE FUNCTION GLOBAL, AND ALL WE NEED TO DO Is PASS THE MODEL NAME
 exports.deleteReview = factory.deleteOne(Review);
+
+exports.updateReview = factory.updateOne(Review);

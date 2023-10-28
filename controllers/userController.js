@@ -67,12 +67,8 @@ exports.getUser = (req, res) => {
   });
 };
 
-exports.updateUser = (req, res) => {
-  res.status(500).json({
-    status: 'error',
-    message: 'Route not yet defined',
-  });
-};
+// DO NOT UPDATE PASSWORD WITH THIS! BECAUSE WITH FINDBYIDANDUPDATE, THE VALIDATORS DONT WORK
+exports.updateUser = factory.updateOne(User);
 
 // INSTEAD OF HAVE A DELETE FUNCTION EXPLICITY FOR THIS CONTROLLER, WE CREATE A DELETE FUNCTION GLOBAL, AND ALL WE NEED TO DO Is PASS THE MODEL NAME
 exports.deleteUser = factory.deleteOne(User);
