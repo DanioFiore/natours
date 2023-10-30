@@ -14,7 +14,11 @@ router
 
 router
   .route('/monthly-plan/:year')
-  .get(tourController.getMonthlyPlan);
+  .get(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide', 'guide'),
+    tourController.getMonthlyPlan
+  );
 
 router
   .route('/tour-stats')
@@ -26,8 +30,16 @@ router
 router
   .route('/:id')
   .get(tourController.getTour)
-  .delete(authController.protect, authController.restrictTo('admin', 'lead-guide', 'user'), tourController.deleteTour)
-  .patch(tourController.updateTour);
+  .delete(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.deleteTour
+  )
+  .patch(
+    authController.protect,
+    authController.restrictTo('admin', 'lead-guide'),
+    tourController.updateTour
+  );
 
 // we can add together the request with the same url
 // router.post('/api/v1/tours', addTour);
@@ -35,8 +47,8 @@ router
 // router.route('/').get(tourController.getAllTours).post(tourController.checkBody, tourController.addTour);
 router
   .route('/')
-  .get(authController.protect, tourController.getAllTours)
-  .post(tourController.createTour);
+  .get(tourController.getAllTours)
+  .post(authController.protect, authController.restrictTo('admin', 'lead-guide'), tourController.createTour);
 
 // NESTED ROUTE
 // router
