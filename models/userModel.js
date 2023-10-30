@@ -50,6 +50,7 @@ const userSchema = mongoose.Schema({
     }
 });
 
+// IF WE IMPORT THE DATA FROM import-dev-data.js, WE HAVE TO DISABILITATE THESE 2 MIDDLEWARE OF ENCRYPT PASSWORD
 userSchema.pre('save', async function(next) {
     // ONly run this function if password was actually modified
     if(!this.isModified('password')) return next();
