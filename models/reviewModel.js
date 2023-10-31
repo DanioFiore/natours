@@ -1,6 +1,7 @@
 // review / rating / createdAt / ref to tour / ref to user
 const mongoose = require('mongoose');
 const validator = require('validator');
+const Tour = require('./tourModel');
 
 const reviewSchema = new mongoose.Schema(
   {
@@ -11,7 +12,7 @@ const reviewSchema = new mongoose.Schema(
         5000,
         'A review must have less or equal then 5000 characters',
       ],
-      minlenght: [250, 'A review must have more or equal then 250 characters'],
+      minlenght: [10, 'A review must have more or equal then 10 characters'],
     },
     rating: {
       type: Number,
@@ -54,6 +55,39 @@ reviewSchema.pre(/^find/, function (next) {
 
   next();
 });
+
+// STATIC FUNCTION
+reviewSchema.statics.calcAverageRatings = async function(tourId) {
+  // WE AGGREGATE THE RESULT. WE HAVE THE TOUR ID, AGGREGATE BY IT, SO USE $MATCH, GROUP BY TOUR, FOR EXAMPLE GROUP 4 REVIEWS OF THE TOUR ID 1, ADD 1 FOR EVERY RATING USING $SUM SO WE RETRIEVE THE NUMBER OF RATINGS AND THE RATINGS AVERAGE BY PASSING THE RATING FIELD
+  const stats = await this.aggregate([
+    {
+      $match: {
+        tour: tourId
+      }
+    },
+    {
+      $group: {
+        _id: '$tour',
+        nRating: {
+          $sum: 1
+        },
+        avgRating: {
+          $avg: '$rating'
+        }
+      }
+    }
+  ]);
+  
+  await Tour.findByIdAndUpdate(tourId, {
+    ratingsQuantity: stats[0].nRating,
+    ratingsAverage: stats[0].avgRating
+  });
+}
+
+reviewSchema.post('save', function() {
+    // WITH THIS KEYWORD WE REFERENCE THE DOCUMENT, WITH CONSTRUCTOR WE REFERENCE THE MODEL THAT CREATE THE DOCUMENT AND THE MODEL CONTAINS THE FUNCTION
+  this.constructor.calcAverageRatings(this.tour);
+})
 
 const Review = mongoose.model('Review', reviewSchema);
 module.exports = Review;

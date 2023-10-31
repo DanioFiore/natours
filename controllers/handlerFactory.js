@@ -55,6 +55,7 @@ catchAsync(async (req, res, next) => {
   let query = Model.findById(req.params.id);
   if (populateOpt) query = query.populate(populateOpt);
   const doc = await query;
+  console.log(doc);
 
   if (!doc) {
     return next(new AppError('No doc found with that id', 404));

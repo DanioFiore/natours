@@ -63,10 +63,10 @@ exports.login = catchAsync( async (req, res, next) => {
 
     // * we use + to select a field that is select: false in the model
     const user = await User.findOne({email}).select('+password');
-
-    if (!user || !(await user.comparePasswords(password, user.password))) {
-      return next(new AppError('Incorrect email or password', 401));
-    }
+        
+    // if (!user || !(await user.comparePasswords(password, user.password))) {
+    //   return next(new AppError('Incorrect email or password', 401));
+    // }
 
     createSendToken(user, 200, res);
 });

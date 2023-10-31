@@ -4,10 +4,8 @@ const authController = require('../controllers/authController');
 
 const router = express.Router();
 
-router
-  .post('/signup', authController.signup);
-router
-  .post('/login', authController.login);
+router.post('/signup', authController.signup);
+router.post('/login', authController.login);
 router.post('/forgotPassword', authController.forgotPassword);
 router.patch('/resetPassword/:token', authController.resetPassword);
 
@@ -21,6 +19,7 @@ router.delete('/deleteMe', userController.deleteMe);
 
 // BY SETTING THIS MIDDLEWARE, WE WILL BE SURE THAT ALL THE ROUTES AFTER, CAN BE ACCESSED IF THE USER IS LOGGED IN AND IS AN ADMIN.
 router.use(authController.restrictTo('admin'));
+
 router
   .route('/')
   .get(userController.getAllUsers)
