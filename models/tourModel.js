@@ -131,6 +131,14 @@ const tourSchema = new mongoose.Schema(
 );
 
 /**
+ * We use index to make faster the queries to the DB, because without the indexing, the query will scan every document. With index we scan only document that are actually returned. Here we index by price and ratings average because we make queries about it often. By puttin 1 we say ascending order, -1 is descending
+ */
+// RATINGS AVERAGE IN THIS CASE WILL BE A COMPOUND INDEX
+tourSchema.index({price: 1, ratingsAverage: -1});
+tourSchema.index({slug: 1});
+
+
+/**
  * we use virtual to have a simply datas that will not be saved into the db, we pass to virtual the name of the data that we want to give
  * virtual will be called every time we take out some data from our db. To the getter method we pass a regular function (not arrow)
  * and we use a regular function when we want to use the this keyword, so everywhere in mongoose

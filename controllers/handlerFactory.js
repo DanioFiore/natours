@@ -80,6 +80,8 @@ catchAsync(async (req, res, next) => {
     .sort()
     .limitFields()
     .paginate();
+    // GIVES US ALL THE QUERY INFO, LIKE HOW MANY DOC ARE SCANNED
+    //  const doc = await features.query.explain();
   const doc = await features.query;
 
   res.status(200).json({
