@@ -78,15 +78,34 @@ reviewSchema.statics.calcAverageRatings = async function(tourId) {
     }
   ]);
   
-  await Tour.findByIdAndUpdate(tourId, {
-    ratingsQuantity: stats[0].nRating,
-    ratingsAverage: stats[0].avgRating
-  });
+  if (stats.length > 0) {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: stats[0].nRating,
+      ratingsAverage: stats[0].avgRating
+    });
+  } else {
+    await Tour.findByIdAndUpdate(tourId, {
+      ratingsQuantity: 0,
+      ratingsAverage: 4.5, // default value when there are no reviews
+    });
+  }
 }
 
 reviewSchema.post('save', function() {
     // WITH THIS KEYWORD WE REFERENCE THE DOCUMENT, WITH CONSTRUCTOR WE REFERENCE THE MODEL THAT CREATE THE DOCUMENT AND THE MODEL CONTAINS THE FUNCTION
   this.constructor.calcAverageRatings(this.tour);
+})
+
+/**
+ * Into pre query middleware,we have access to the query, into the post, no. Because the query is already executed. Into post also we cant use next. So we have to create a pre and post middleware, and pass through the review retrieved from the query. To do so, let's do that by saving the review into THIS
+ */
+// findByIdAndUpdate, findByIdAndDelete are a shorthand of mongoose of findOneAnd..
+reviewSchema.pre(/^findOneAnd/, async function(next) {
+  this.r = await this.findOne(); // r stands for review
+  next();
+})
+reviewSchema.post(/^findOneAnd/, async function() {
+  await this.r.constructor.calcAverageRatings(this.r.tour);
 })
 
 const Review = mongoose.model('Review', reviewSchema);
