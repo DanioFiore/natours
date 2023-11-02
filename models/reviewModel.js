@@ -46,6 +46,8 @@ const reviewSchema = new mongoose.Schema(
   }
 );
 
+reviewSchema.index({tour: 1, user: 1}, {unique: true});
+
 reviewSchema.pre(/^find/, function (next) {
   // With populate, we populate the guides in our tour document, where the guides are referenced and not embedded, so in the guides field we have the ids and we replace that id with the guide document.
   this.populate({
